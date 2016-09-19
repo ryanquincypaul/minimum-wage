@@ -19,7 +19,7 @@
 (defn form-year-item
   ;create a map containing year and uri to get wage info
   [year]
-  (let [year-string (name year)] {:year year-string :get-year-wage-info-uri (str "/" year-string)})
+  (let [year-string (name year)] {:year year-string :get-states-by-year-uri (str "/" year-string)})
 )
 
 (defn form-get-years-response
@@ -39,9 +39,30 @@
     (form-get-years-response year-keys))
 )
 
-(defn get-year-wage-info
+
+(defn form-get-states-by-year-item
+  "create a map containing state, postalcode, and uri to get state wage"
+  [year state-wage-map]
+  (assoc (select-keys state-wage-map [:state :postalcode]) :get-state-wage-info-for-year-uri (str "/" year "/" (:postalcode state-wage-map)))
+)
+
+(defn form-get-states-by-year-response
+  "Returns filtered states into response"
+  ([year state-wages]
+    (form-get-states-by-year-response year state-wages []))
+  ([year state-wages output-vector]
+    (if (empty? state-wages)
+      {:year year :states  output-vector}
+      (recur year (rest state-wages) (conj output-vector (form-get-states-by-year-item year (first state-wages)))))))
+
+(defn get-states-by-year
   "Returns the states available and the federal minimum wage for given year"
   [year state-wages federal-wages]
-  "yolo"
+  (assoc (form-get-states-by-year-response year (filter #(not (nil? ((keyword year) %))) state-wages) federal-wages) :federal "7.25")
 )
+
+(defn get-state-wage-info-for-year
+  "Get info for specific state and year"
+  [year postal-code state-wages federal-wages]
+  "yolo")
 
