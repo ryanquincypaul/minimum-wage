@@ -16,6 +16,11 @@
 (def federal-csv-filename "wage_data/federal_minimum_wage.csv")
 (def federal-wages-collection (parse (read-file federal-csv-filename)))
 
+(defn get-federal-wage-by-year
+  "Get federam minimum-wage from federal wage csv by year"
+  [year federal-wages]
+  ((keyword (str year)) (first federal-wages)))
+
 (defn form-year-item
   ;create a map containing year and uri to get wage info
   [year]
@@ -43,7 +48,9 @@
 (defn form-get-states-by-year-item
   "create a map containing state, postalcode, and uri to get state wage"
   [year state-wage-map]
-  (assoc (select-keys state-wage-map [:state :postalcode]) :get-state-wage-info-for-year-uri (str "/" year "/" (:postalcode state-wage-map)))
+  (assoc 
+   (select-keys state-wage-map [:state :postalcode]) 
+   :get-state-wage-info-for-year-uri (str "/" year "/" (:postalcode state-wage-map)))
 )
 
 (defn form-get-states-by-year-response
@@ -58,11 +65,27 @@
 (defn get-states-by-year
   "Returns the states available and the federal minimum wage for given year"
   [year state-wages federal-wages]
-  (assoc (form-get-states-by-year-response year (filter #(not (nil? ((keyword year) %))) state-wages) federal-wages) :federal "7.25")
+  (assoc 
+   (form-get-states-by-year-response 
+    year 
+    (filter #(not (nil? ((keyword (str year)) %))) state-wages))
+   :federal (get-federal-wage-by-year year federal-wages))
 )
+
+(defn get-state-wage-info-for-year-response
+  "Creates map with state, postal code, and wage"
+  [year state-info] 
+  (let [[state postal-code wage] [(:state state-info) (:postalcode state-info) ((keyword (str year)) state-info)]]
+   {(keyword state) {:state state :postalcode postal-code :wage wage}})
+ )
 
 (defn get-state-wage-info-for-year
   "Get info for specific state and year"
   [year postal-code state-wages federal-wages]
-  "yolo")
+  (assoc 
+   (get-state-wage-info-for-year-response 
+    year 
+    (first (filter #(= (:postalcode %) (clojure.string/upper-case postal-code)) state-wages))) 
+   :federal (get-federal-wage-by-year year federal-wages))
+)
 
