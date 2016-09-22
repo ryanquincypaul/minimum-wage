@@ -14,13 +14,12 @@
 (deftest get-years-test
   (let [response (get-years parsed-state-data)]
     (is (= response {:years [{:year "2015" :get-states-by-year-uri "/2015"}
-                             {:year "2016" :get-states-by-year-uri "/2016"} 
+                             {:year "2016" :get-states-by-year-uri "/2016"}
                              {:year "2017" :get-states-by-year-uri "/2017"}
                              {:year "2018" :get-states-by-year-uri "/2018"}]}))))
 
 (def ^{:private true} common-year
-  2016) 
-
+  2016)
 
 (deftest get-year-states-info-test
   ;Use year that all states have a value for
@@ -37,8 +36,8 @@
 (deftest get-year-wage-info-missing-test
   (let [response (get-states-by-year some-missing-year parsed-state-data parsed-federal-data)]
     (is (= response {:2018 {:states [{:state "Massachusetts" :postalcode "MA" :get-state-wage-info-for-year-uri "/2018/MA"}
-                                          {:state "Michigan" :postalcode "MI" :get-state-wage-info-for-year-uri "/2018/MI"}]
-                                 :federal "7.25"}}))))
+                                     {:state "Michigan" :postalcode "MI" :get-state-wage-info-for-year-uri "/2018/MI"}]
+                            :federal "7.25"}}))))
 
 (def ^{:private true} michigan-postal-code
   "mi")
