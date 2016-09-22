@@ -25,11 +25,10 @@
 (deftest get-year-states-info-test
   ;Use year that all states have a value for
   (let [response (get-states-by-year common-year parsed-state-data parsed-federal-data)]
-    (is (= response {:year 2016
-                     :states [{:state "Alabama" :postalcode "AL" :get-state-wage-info-for-year-uri "/2016/AL"}
-                              {:state "Massachusetts" :postalcode "MA" :get-state-wage-info-for-year-uri "/2016/MA"}
-                              {:state "Michigan" :postalcode "MI" :get-state-wage-info-for-year-uri "/2016/MI"}]
-                     :federal "7.25"}))))
+    (is (= response {:2016 {:states [{:state "Alabama" :postalcode "AL" :get-state-wage-info-for-year-uri "/2016/AL"}
+                                     {:state "Massachusetts" :postalcode "MA" :get-state-wage-info-for-year-uri "/2016/MA"}
+                                     {:state "Michigan" :postalcode "MI" :get-state-wage-info-for-year-uri "/2016/MI"}]
+                            :federal "7.25"}}))))
 
 ;to prevent responses of states with null or no values for a year
 (def ^{:private true} some-missing-year
@@ -37,15 +36,14 @@
 
 (deftest get-year-wage-info-missing-test
   (let [response (get-states-by-year some-missing-year parsed-state-data parsed-federal-data)]
-    (is (= response {:year 2018
-                     :states [{:state "Massachusetts" :postalcode "MA" :get-state-wage-info-for-year-uri "/2018/MA"}
-                              {:state "Michigan" :postalcode "MI" :get-state-wage-info-for-year-uri "/2018/MI"}]
-                     :federal "7.25"}))))
+    (is (= response {:2018 {:states [{:state "Massachusetts" :postalcode "MA" :get-state-wage-info-for-year-uri "/2018/MA"}
+                                          {:state "Michigan" :postalcode "MI" :get-state-wage-info-for-year-uri "/2018/MI"}]
+                                 :federal "7.25"}}))))
 
 (def ^{:private true} michigan-postal-code
   "mi")
 
 (deftest get-state-wage-info-test
   (let [response (get-state-wage-info-for-year common-year michigan-postal-code parsed-state-data parsed-federal-data)]
-    (is (= response {:Michigan {:state "Michigan" :postalcode "MI" :wage "8.50"}
-                     :federal "7.25"}))))
+    (is (= response {:2016 {:Michigan {:state "Michigan" :postalcode "MI" :wage "8.50"}
+                            :federal "7.25"}}))))
