@@ -10,11 +10,29 @@
     (doall
      (csv/read-csv in-file))))
 
-(def state-csv-filename "wage_data/state_minimum_wage.csv")
-(def state-wages-collection (parse (read-file state-csv-filename)))
+(defn read-resource
+  "helper method to call read-csv on a resource from the resource dir"
+  [resource]
+  (with-open [in-file (io/reader (io/resource resource))]
+    (doall
+      (csv/read-csv in-file))))
 
-(def federal-csv-filename "wage_data/federal_minimum_wage.csv")
-(def federal-wages-collection (parse (read-file federal-csv-filename)))
+(defn get-wage-data
+  "retrieve a read csv file containing wage data from either from server or fallback to what is in war"
+  [server-resource war-resource]
+    (if (io/resource server-resource)
+      (read-resource server-resource)
+      (read-resource war-resource)))
+
+;;(def state-csv-filename "wage_data/state_minimum_wage.csv")
+(def state-csv-resource "wage_data/state_minimum_wage.csv")
+(def state-csv-resource-dev "wage_data/dev/state_minimum_wage.csv")
+(def state-wages-collection (parse (get-wage-data state-csv-resource state-csv-resource-dev)))
+
+;;(def federal-csv-filename "wage_data/federal_minimum_wage.csv")
+(def federal-csv-resource "wage_data/federal_minimum_wage.csv")
+(def federal-csv-resource-dev "wage_data/dev/federal_minimum_wage.csv")
+(def federal-wages-collection (parse (get-wage-data federal-csv-resource federal-csv-resource-dev)))
 
 (defn get-federal-wage-by-year
   "Get federam minimum-wage from federal wage csv by year."
@@ -83,3 +101,4 @@
    (get-state-wage-info-for-year-response
     year
     (first (filter #(= (:postalcode %) (clojure.string/upper-case postal-code)) state-wages)) federal-wages)))
+
