@@ -60,47 +60,63 @@
 (defn form-year-item
   "Create a map containing year and uri to get wage info."
   [year]
-  (let [year-string (name year)] {:year year-string :get-states-by-year-uri (str "/" year-string)}))
+  (let [year-string (name year)] {:year year-string 
+                                  :url (str "/years/" year-string) 
+                                  :states_url (str "/years/" year-string "/states") 
+                                  :federal_wage_info_url (str "/years/" year-string "/federal")}))
 
 (defn form-get-years-response
-  "Organize year keys into a vector of maps."
   ([years]
    (form-get-years-response years []))
   ([years output-vector]
    (if (empty? years)
-     {:links (form-links {:self "/years"}) :years output-vector}
+     {:years output-vector :url "/years"}
      (recur (rest years) (conj output-vector (form-year-item (first years)))))))
 
+(defn get-available-year-keys
+  "Takes the first line of Federal and State wage data and grabs and sorts the years into a sorted-set"
+  [state-wage-data-year-keys federal-wage-data-year-keys]
+  (apply sorted-set (concat state-wage-data-year-keys federal-wage-data-year-keys)))
+
 (defn get-years
-  "Returns the years available through the api. Allows for sample state wage data for testing."
+  "Returns the years available through the api. Accepts sample state and federal wage data for testing."
   ([]
-   (get-years state-wages-collection))
-  ([state-wages]
-   (let [year-keys (keys (dissoc (first state-wages) :state :postalcode))]
+   (get-years state-wages-collection federal-wages-collection))
+  ([state-wages federal-wages]
+   ;TODO: Simplify this using some reduce or apply magic
+   (let [year-keys (get-available-year-keys (keys (dissoc (first state-wages) :state :postalcode)) (keys (dissoc (first federal-wages))))]
      (form-get-years-response year-keys))))
 
-(defn form-get-year-wage-info-state-item
+(defn get-year
+  []
+  {})
+
+(defn get-federal-wage-info-for-year
+  []
+  {})
+
+(defn form-get-states-for-year-state-item
   "create a map containing state, postalcode, and uri to get state wage"
   [year state-wage-map]
   (assoc
    (select-keys state-wage-map [:state :postalcode])
    :get-state-wage-info-for-year-uri (str "/" year "/" (:postalcode state-wage-map))))
 
-(defn form-get-year-wage-info-response
+(defn form-get-states-for-year-response
   "Returns filtered states into response"
   ([year state-wages federal-wages]
-   (form-get-year-wage-info-response year state-wages [] federal-wages))
+   (form-get-states-for-year-response year state-wages [] federal-wages))
   ([year state-wages output-vector federal-wages]
    (if (empty? state-wages)
      {(keyword (str year)) {:states output-vector :federal (get-federal-wage-by-year year federal-wages)}}
-     (recur year (rest state-wages) (conj output-vector (form-get-year-wage-info-state-item year (first state-wages))) federal-wages))))
+     (recur year (rest state-wages) (conj output-vector (form-get-states-for-year-state-item year (first state-wages))) federal-wages))))
 
-(defn get-year-wage-info
+(defn get-states-for-year
   "Returns the states available and the federal minimum wage for given year. Allows for sample state and federal wage data for testing."
   ([year]
-   (get-year-wage-info year state-wages-collection federal-wages-collection))
+   (get-states-for-year year state-wages-collection federal-wages-collection))
   ([year state-wages federal-wages]
-   (form-get-year-wage-info-response
+   (form-get-states-for-year-response
     year
     (filter #(not (nil? ((keyword (str year)) %))) state-wages)
     federal-wages)))

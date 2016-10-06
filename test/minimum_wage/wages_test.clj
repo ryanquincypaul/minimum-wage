@@ -13,47 +13,65 @@
 
 (deftest get-years-test
   (let [response (get-years parsed-state-data parsed-federal-data)]
-    (is (= response {:_links {:self {:href "/years"}} 
-                     :years [{:_links {:self {:href "/year/2015"}} :year "2015" }
-                             {:_links {:self {:href "/year/2016"}} :year "2016" }
-                             {:_links {:self {:href "/year/2017"}} :year "2017" }
-                             {:_links {:self {:href "/year/2018"}} :year "2018" }]}))))
+    (is (= response {:years [{:year "2015" :url "/years/2015" :states_url "/years/2015/states" :federal_wage_info_url "/years/2015/federal"}
+                             {:year "2016" :url "/years/2016" :states_url "/years/2016/states" :federal_wage_info_url "/years/2016/federal"}
+                             {:year "2017" :url "/years/2017" :states_url "/years/2017/states" :federal_wage_info_url "/years/2017/federal"}
+                             {:year "2018" :url "/years/2018" :states_url "/years/2018/states" :federal_wage_info_url "/years/2018/federal"}]
+                     :url "/years"}))))
 
 (def ^{:private true} common-year
   2016)
 
-(deftest get-year-states-info-test
+(deftest get-year-test
+  (let [response (get-year common-year parsed-state-data parsed-federal-data)]
+    (is (= response {:year "2016"
+                     :url "/years/2016"
+                     :states_url "/years/2016/states"
+                     :federal_wage_info_url "/years/2016/federal"
+                     :all_years_url "/years"}))))
+
+(deftest get-federal-wage-info-test
+  (let [response (get-federal-wage-info-for-year common-year parsed-federal-data)]
+    (is (= response {:year "2016"
+                     :federal-minimum-wage "7.25"
+                     :url "/years/2016/federal"
+                     :states_url "/years/2016/states"
+                     :year_url "/years/2016"}))))
+
+(deftest get-year-states-test
   ;Use year that all states have a value for
-  (let [response (get-states-by-year common-year parsed-state-data parsed-federal-data)]
-    (is (= response {:_links {:self {:href "/year/2016"}} 
-                     :year "2016"
-                     :states [{:_links {:self {:href "/year/2016/state/al"}} :state "Alabama" :postalcode "AL"}
-                              {:_links {:self {:href "/year/2016/state/ma"}} :state "Massachusetts" :postalcode "MA"}
-                              {:_links {:self {:href "/year/2016/state/mi"}} :state "Michigan" :postalcode "MI"}]
-                     :federal-wage "7.25"}))))
+  (let [response (get-states-for-year common-year parsed-state-data parsed-federal-data)]
+    (is (= response {:year "2016"
+                     :states [{:state "Alabama" :postalcode "AL" :url "/years/2016/states/al"}
+                              {:state "Massachusetts" :postalcode "MA" :url "/years/2016/states/ma"}
+                              {:state "Michigan" :postalcode "MI" :url "/years/2016/states/mi"}]
+                     :url "/years/2016/states"
+                     :federal_wage_info "/years/2016/federal"}))))
 
 ;to prevent responses of states with null or no values for a year
 (def ^{:private true} some-missing-year
   2018)
 
 (deftest get-year-wage-info-missing-test
-  (let [response (get-year-wage-info some-missing-year parsed-state-data parsed-federal-data)]
-    (is (= response {:_links {:self {:href "/year/2018"}} 
-                     :year "2018" 
-                     :states [{:_links {:self {:href "/year/2018/state/ma"}} :state "Massachusetts" :postalcode "MA"}
-                              {:_links {:self {:href "/year/2018/state/mi"}} :state "Michigan" :postalcode "MI"}]
-                     :federal-wage "7.25"}))))
+  (let [response (get-states-for-year some-missing-year parsed-state-data parsed-federal-data)]
+    (is (= response {:year "2018" 
+                     :states [{:state "Massachusetts" :postalcode "MA" :url "/years/2018/states/ma"}
+                              {:state "Michigan" :postalcode "MI" :url "/years/2018/states/mi"}]
+                     :url "/years/2018/states"
+                     :federal_wage_info_url "/years/2018/federal"}))))
 
 (def ^{:private true} michigan-postal-code
   "mi")
 
 (deftest get-state-wage-info-test
   (let [response (get-state-wage-info-for-year common-year michigan-postal-code parsed-state-data parsed-federal-data)]
-    (is (= response {:_links {:self {:href "/year/2016/state/mi"}} 
-                     :year "2016" 
+    (is (= response {:year "2016" 
                      :state "Michigan"
                      :postalcode "MI"
-                     :wage "8.50"}))))
+                     :minimum-wage "8.50"
+                     :url "/years/2016/states/mi"
+                     :federal_wage_info_url "/years/2016/federal"
+                     :year_url "/years/2016"}))))
 
 (def ^{:private true} parsed-federal-data-extra-year
   [{:2015 "7.25" :2016 "7.25" :2017 "7.25" :2018 "7.25" :2019 "15.00"}])
@@ -61,15 +79,9 @@
 (deftest get-years-with-only-federal-wage)
   ;make sure we also return years even when we only have federal data
   (let [response (get-years parsed-state-data parsed-federal-data-extra-year)]
-    (is (= response {:_links {:self {:href "/years"}} 
-                     :years [{:_links {:self {:href "/year/2015"}} :year "2015" }
-                             {:_links {:self {:href "/year/2016"}} :year "2016" }
-                             {:_links {:self {:href "/year/2017"}} :year "2017" }
-                             {:_links {:self {:href "/year/2018"}} :year "2018" }
-                             {:_links {:self {:href "/year/2019"}} :year "2019" }]})))
-
-(deftest get-year-wage-info-for-year-with-only-federal-data
-  (let [response (get-year-wage-info some-missing-year parsed-state-data parsed-federal-data-extra-year)]
-    (is (= response {:_links {:self {:href "/year/2019"}} 
-                     :year "2019" 
-                     :federal-wage "15.00"}))))
+    (is (= response {:years [{:year "2015" :url "/years/2015" :states_url "/years/2015/states" :federal_wage_info_url "/years/2015/federal"}
+                             {:year "2016" :url "/years/2016" :states_url "/years/2016/states" :federal_wage_info_url "/years/2016/federal"}
+                             {:year "2017" :url "/years/2017" :states_url "/years/2017/states" :federal_wage_info_url "/years/2017/federal"}
+                             {:year "2018" :url "/years/2018" :states_url "/years/2018/states" :federal_wage_info_url "/years/2018/federal"}
+                             {:year "2019" :url "/years/2019" :states_url "/years/2019/states" :federal_wage_info_url "/years/2019/federal"}]
+                     :url "/years"})))
