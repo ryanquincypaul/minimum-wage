@@ -88,51 +88,70 @@
      (form-get-years-response year-keys))))
 
 (defn get-year
-  []
-  {})
+  [year]
+  {:year (str year) 
+   :url (str "/years/" year) 
+   :states_url (str "/years/" year "/states") 
+   :federal_wage_info_url (str "/years/" year "/federal")
+   :all_years_url "/years"})
 
 (defn get-federal-wage-info-for-year
-  []
-  {})
+  ([year]
+    (get-federal-wage-info-for-year year federal-wages-collection))
+  ([year federal-wages]
+   {:year (str year) 
+    :minimum-wage (get-federal-wage-by-year year federal-wages) 
+    :url (str "/years/" year "/federal")
+    :states_url (str "/years/" year "/states") 
+    :year_url (str "/years/" year)}))
 
 (defn form-get-states-for-year-state-item
   "create a map containing state, postalcode, and uri to get state wage"
   [year state-wage-map]
   (assoc
    (select-keys state-wage-map [:state :postalcode])
-   :get-state-wage-info-for-year-uri (str "/" year "/" (:postalcode state-wage-map))))
+   :url (str "/years/" year "/states/" (clojure.string/lower-case (:postalcode state-wage-map)))))
 
 (defn form-get-states-for-year-response
   "Returns filtered states into response"
-  ([year state-wages federal-wages]
-   (form-get-states-for-year-response year state-wages [] federal-wages))
-  ([year state-wages output-vector federal-wages]
+  ([year state-wages]
+   (form-get-states-for-year-response year state-wages []))
+  ([year state-wages output-vector]
    (if (empty? state-wages)
-     {(keyword (str year)) {:states output-vector :federal (get-federal-wage-by-year year federal-wages)}}
-     (recur year (rest state-wages) (conj output-vector (form-get-states-for-year-state-item year (first state-wages))) federal-wages))))
+     {:year (str year) 
+      :states output-vector
+      :url (str  "/years/" year "/states")
+      :year_url (str "/years/" year) 
+      :federal_wage_info_url (str "/years/" year "/federal")}
+     (recur year (rest state-wages) (conj output-vector (form-get-states-for-year-state-item year (first state-wages)))))))
 
 (defn get-states-for-year
   "Returns the states available and the federal minimum wage for given year. Allows for sample state and federal wage data for testing."
   ([year]
-   (get-states-for-year year state-wages-collection federal-wages-collection))
-  ([year state-wages federal-wages]
+   (get-states-for-year year state-wages-collection))
+  ([year state-wages]
    (form-get-states-for-year-response
     year
-    (filter #(not (nil? ((keyword (str year)) %))) state-wages)
-    federal-wages)))
+    (filter #(not (nil? ((keyword (str year)) %))) state-wages))))
 
 (defn get-state-wage-info-for-year-response
   "Creates map with state, postal code, and wage"
-  [year state-info federal-wages]
+  [year state-info]
   (let [[state postal-code wage] [(:state state-info) (:postalcode state-info) ((keyword (str year)) state-info)]]
-    {(keyword (str year)) {(keyword state) {:state state :postalcode postal-code :wage wage} :federal (get-federal-wage-by-year year federal-wages)}}))
+    {:year (str year) 
+     :state state 
+     :postalcode postal-code 
+     :minimum-wage wage
+     :url (str "/years/" year "/states/" (clojure.string/lower-case postal-code))
+     :year_url (str "/years/" year)
+     :federal_wage_info_url (str "/years/" year "/federal")}))
 
 (defn get-state-wage-info-for-year
   "Get info for specific state and year. Allows for sample state and federal wage data for testing."
   ([year postal-code]
-   (get-state-wage-info-for-year year postal-code state-wages-collection federal-wages-collection))
-  ([year postal-code state-wages federal-wages]
+   (get-state-wage-info-for-year year postal-code state-wages-collection))
+  ([year postal-code state-wages]
    (get-state-wage-info-for-year-response
     year
-    (first (filter #(= (:postalcode %) (clojure.string/upper-case postal-code)) state-wages)) federal-wages)))
+    (first (filter #(= (:postalcode %) (clojure.string/upper-case postal-code)) state-wages)))))
 
