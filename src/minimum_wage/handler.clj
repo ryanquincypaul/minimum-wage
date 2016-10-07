@@ -9,8 +9,11 @@
 
 (defroutes app-routes
   (GET "/" [] (response (get-years)))
-  (GET "/:year" [year] (response (get-states-for-year   (str year))))
-  (GET "/:year/:postal-code" [year postal-code] (response (get-state-wage-info-for-year year postal-code)))
+  (GET "/years" [] (response (get-years)))
+  (GET "/years/:year" [year] (response (get-year (str year))))
+  (GET "/years/:year/federal" [year] (response (get-federal-wage-info-for-year (str year))))
+  (GET "/years/:year/states" [year] (response (get-states-for-year (str year))))
+  (GET "/years/:year/states/:postal-code" [year postal-code] (response (get-state-wage-info-for-year year postal-code)))
   (route/not-found "Not Found"))
 
 (def app
