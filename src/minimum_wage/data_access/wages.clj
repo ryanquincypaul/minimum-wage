@@ -1,23 +1,23 @@
 (ns minimum-wage.data-access.wages
-  (:use [keyval-collection-parse.parse])
+  (:use [keyval-collection-parse.parse]
+        [markdown.core])
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]))
 
-(defn read-file
-  "helper method to call read-csv on a filename"
-  [filename]
-  (with-open [in-file (io/reader filename)]
-    (doall
-     (csv/read-csv in-file))))
-
-(defn read-resource
+(defn ^{:private true} read-resource
   "helper method to call read-csv on a resource from the resource dir"
   [resource]
   (with-open [in-file (io/reader (io/resource resource))]
     (doall
       (csv/read-csv in-file))))
 
-(defn get-wage-data
+(def api-reference-md-resource "public/minimum-wage-api-reference.md")
+
+(defn load-api-reference
+  []
+  (md-to-html-string (slurp (io/resource api-reference-md-resource))))
+
+(defn ^{:private true} get-wage-data
   "retrieve a read csv file containing wage data from either from server or fallback to what is in war"
   [server-resource war-resource]
     (if (io/resource server-resource)
@@ -33,31 +33,12 @@
 (def federal-csv-resource-dev "wage_data/dev/federal_minimum_wage.csv")
 (def federal-wages-collection (parse (get-wage-data federal-csv-resource federal-csv-resource-dev)))
 
-(defn get-federal-wage-by-year
+(defn ^{:private true} get-federal-wage-by-year
   "Get federam minimum-wage from federal wage csv by year."
   [year federal-wages]
   ((keyword (str year)) (first federal-wages)))
 
-(defn href-map
-  "create href map for link"
-  [uri]
-  {:href uri})
-
-(defn link-map
-  "take a key value pair and creates a link that will be returned in the links list"
-  [kvp]
-  {(key kvp) (href-map (val kvp))})
-
-(defn form-links
-  "form values for links section of responses"
-  ([links]
-    (form-links links []))
-  ([links output-map]
-    (if (empty? links)
-      output-map 
-      (recur (rest links) (conj output-map (link-map (first links)))))))
-
-(defn form-year-item
+(defn ^{:private true} form-year-item
   "Create a map containing year and uri to get wage info."
   [year]
   (let [year-string (name year)] {:year year-string 
@@ -65,7 +46,7 @@
                                   :states_url (str "/years/" year-string "/states") 
                                   :federal_wage_info_url (str "/years/" year-string "/federal")}))
 
-(defn form-get-years-response
+(defn ^{:private true} form-get-years-response
   ([years]
    (form-get-years-response years []))
   ([years output-vector]
@@ -73,7 +54,7 @@
      {:years output-vector :url "/years"}
      (recur (rest years) (conj output-vector (form-year-item (first years)))))))
 
-(defn get-available-year-keys
+(defn ^{:private true} get-available-year-keys
   "Takes the first line of Federal and State wage data and grabs and sorts the years into a sorted-set"
   [state-wage-data-year-keys federal-wage-data-year-keys]
   (apply sorted-set (concat state-wage-data-year-keys federal-wage-data-year-keys)))
@@ -105,14 +86,14 @@
     :states_url (str "/years/" year "/states") 
     :year_url (str "/years/" year)}))
 
-(defn form-get-states-for-year-state-item
+(defn ^{:private true} form-get-states-for-year-state-item
   "create a map containing state, postalcode, and uri to get state wage"
   [year state-wage-map]
   (assoc
    (select-keys state-wage-map [:state :postalcode])
    :url (str "/years/" year "/states/" (clojure.string/lower-case (:postalcode state-wage-map)))))
 
-(defn form-get-states-for-year-response
+(defn ^{:private true} form-get-states-for-year-response
   "Returns filtered states into response"
   ([year state-wages]
    (form-get-states-for-year-response year state-wages []))
@@ -134,7 +115,7 @@
     year
     (filter #(not (nil? ((keyword (str year)) %))) state-wages))))
 
-(defn get-state-wage-info-for-year-response
+(defn ^{:private true} get-state-wage-info-for-year-response
   "Creates map with state, postal code, and wage"
   [year state-info]
   (let [[state postal-code wage] [(:state state-info) (:postalcode state-info) ((keyword (str year)) state-info)]]

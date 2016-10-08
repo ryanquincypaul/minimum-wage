@@ -8,13 +8,14 @@
             [minimum-wage.data-access.wages :refer :all]))
 
 (defroutes app-routes
-  (GET "/" [] (response (get-years)))
+  (GET "/" [] (load-api-reference))
   (GET "/years" [] (response (get-years)))
   (GET "/years/:year" [year] (response (get-year (str year))))
   (GET "/years/:year/federal" [year] (response (get-federal-wage-info-for-year (str year))))
   (GET "/years/:year/states" [year] (response (get-states-for-year (str year))))
   (GET "/years/:year/states/:postal-code" [year postal-code] (response (get-state-wage-info-for-year year postal-code)))
-  (route/not-found "Not Found"))
+  (route/not-found (response {:message "Not Found"
+                              :documentation_url "https://github.com/ryanquincypaul/minimum-wage/wiki"})))
 
 (def app
   (-> (wrap-defaults app-routes site-defaults)
