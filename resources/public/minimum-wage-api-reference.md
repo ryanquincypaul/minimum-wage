@@ -2,6 +2,10 @@
 
 A Clojure powered RESTful web service providing State and Federal minimum wage data.
 
+## Project Site
+
+More info and the code can be found [here](https://github.com/ryanquincypaul/minimum-wage).
+
 ## Table-of-Contents
 
 * [Years](#years)
