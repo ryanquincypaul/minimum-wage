@@ -5,7 +5,8 @@
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.middleware.json :as middleware]
             [ring.util.response :refer [response]]
-            [minimum-wage.data-access.wages :refer :all]))
+            [minimum-wage.data-access.wages :refer :all]
+            [ring.middleware.cors :refer [wrap-cors]]))
 
 (defroutes app-routes
   (GET "/" [] (load-api-reference))
@@ -20,4 +21,6 @@
 (def app
   (-> (wrap-defaults app-routes site-defaults)
       (middleware/wrap-json-body {:keywords? true})
-      (middleware/wrap-json-response app-routes)))
+      (middleware/wrap-json-response app-routes)
+      (wrap-cors :access-control-allow-origin #".*"
+                 :access-control-allow-methods [:get])))

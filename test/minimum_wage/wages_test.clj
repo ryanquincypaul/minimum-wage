@@ -79,11 +79,12 @@
   [{:2015 "7.25" :2016 "7.25" :2017 "7.25" :2018 "7.25" :2019 "15.00"}])
 
 (deftest get-years-with-only-federal-wage)
-  ;make sure we also return years even when we only have federal data
-  (let [response (get-years parsed-state-data parsed-federal-data-extra-year)]
-    (is (= response {:years [{:year "2015" :url "/years/2015" :states_url "/years/2015/states" :federal_wage_info_url "/years/2015/federal"}
-                             {:year "2016" :url "/years/2016" :states_url "/years/2016/states" :federal_wage_info_url "/years/2016/federal"}
-                             {:year "2017" :url "/years/2017" :states_url "/years/2017/states" :federal_wage_info_url "/years/2017/federal"}
-                             {:year "2018" :url "/years/2018" :states_url "/years/2018/states" :federal_wage_info_url "/years/2018/federal"}
-                             {:year "2019" :url "/years/2019" :states_url "/years/2019/states" :federal_wage_info_url "/years/2019/federal"}]
-                     :url "/years"})))
+                                        ;make sure we also return years even when we only have federal data
+
+(let [response (get-years parsed-state-data parsed-federal-data-extra-year)]
+  (is (= response {:years [{:year "2015" :url "/years/2015" :states_url "/years/2015/states" :federal_wage_info_url "/years/2015/federal"}
+                           {:year "2016" :url "/years/2016" :states_url "/years/2016/states" :federal_wage_info_url "/years/2016/federal"}
+                           {:year "2017" :url "/years/2017" :states_url "/years/2017/states" :federal_wage_info_url "/years/2017/federal"}
+                           {:year "2018" :url "/years/2018" :states_url "/years/2018/states" :federal_wage_info_url "/years/2018/federal"}
+                           {:year "2019" :url "/years/2019" :states_url "/years/2019/states" :federal_wage_info_url "/years/2019/federal"}]
+                   :url "/years"})))

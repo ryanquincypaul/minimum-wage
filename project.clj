@@ -6,6 +6,7 @@
                  [compojure "1.5.1"]
                  [ring/ring-defaults "0.2.1"]
                  [ring/ring-json "0.4.0"]
+                 [ring-cors "0.1.8"]
                  [org.clojure/data.csv "0.1.3"]
                  [keyval-collection-parse "0.1.0-SNAPSHOT"]
                  [markdown-clj "0.9.89"]]
