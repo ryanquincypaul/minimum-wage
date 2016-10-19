@@ -81,7 +81,7 @@
     (get-federal-wage-info-for-year year federal-wages-collection))
   ([year federal-wages]
    {:year (str year) 
-    :minimum-wage (get-federal-wage-by-year year federal-wages) 
+    :minimum_wage (get-federal-wage-by-year year federal-wages) 
     :url (str "/years/" year "/federal")
     :states_url (str "/years/" year "/states") 
     :year_url (str "/years/" year)}))
@@ -122,7 +122,7 @@
     {:year (str year) 
      :state state 
      :postalcode postal-code 
-     :minimum-wage wage
+     :minimum_wage wage
      :url (str "/years/" year "/states/" (clojure.string/lower-case postal-code))
      :year_url (str "/years/" year)
      :federal_wage_info_url (str "/years/" year "/federal")}))

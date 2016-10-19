@@ -33,7 +33,7 @@
 (deftest get-federal-wage-info-for-year-test
   (let [response (get-federal-wage-info-for-year common-year parsed-federal-data)]
     (is (= response {:year "2016"
-                     :minimum-wage "7.25"
+                     :minimum_wage "7.25"
                      :url "/years/2016/federal"
                      :states_url "/years/2016/states"
                      :year_url "/years/2016"}))))
@@ -70,7 +70,7 @@
     (is (= response {:year "2016" 
                      :state "Michigan"
                      :postalcode "MI"
-                     :minimum-wage "8.50"
+                     :minimum_wage "8.50"
                      :url "/years/2016/states/mi"
                      :year_url "/years/2016"
                      :federal_wage_info_url "/years/2016/federal"}))))

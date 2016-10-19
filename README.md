@@ -15,7 +15,7 @@ Output
   "year": "2016",
   "state": "Michigan",
   "postalcode": "MI",
-  "minimum-wage": "8.50",
+  "minimum_wage": "8.50",
   "url": "/years/2016/states/mi",
   "year_url": "/years/2016",
   "federal_wage_info_url": "/years/2016/federal"
