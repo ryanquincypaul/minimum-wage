@@ -26,7 +26,7 @@ Output
 
 This service can be consumed by anything that is set up to handle JSON responses. Included in each response are URLs that can be used to explore the available minimum wage data. 
 
-See it in use at [fairpayWeb](https://github.com/ryanquincypaul/fairpayWeb).
+See it in use within an Angular 2 web application at [fairpayWeb](https://github.com/ryanquincypaul/fairpayWeb).
 
 ## Motivation
 
