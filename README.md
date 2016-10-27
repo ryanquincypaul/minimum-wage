@@ -26,6 +26,8 @@ Output
 
 This service can be consumed by anything that is set up to handle JSON responses. Included in each response are URLs that can be used to explore the available minimum wage data. 
 
+See it in use at [fairpayWeb](https://github.com/ryanquincypaul/fairpayWeb).
+
 ## Motivation
 
 I wrote this as a microservice to a future web application. I could not find a publicly available API with minimum wage information. This is just a compilation of that information with an API to access it. 
