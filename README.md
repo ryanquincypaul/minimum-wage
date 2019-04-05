@@ -3,8 +3,6 @@
 A Clojure powered RESTful web service providing State and Federal minimum wage data.
 
 ## Example
-This is no longer hosted, below is an example call if it was still running at it's old location on Azure. 
-
 ```
 curl http://fairpay.azurewebsites.net/minimum-wage/years/2016/states/mi
 ```
